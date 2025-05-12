@@ -95,15 +95,15 @@ fun HomeScreen(navController: NavController) {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    CardText(text = "Game Feature allows you to guess randomly " +
-                            "generated Hiragana and Katakana characters"
+                    CardText(text = "Chart Feature allows you to study " +
+                            "the Hiragana and Katakana scripts " +
+                            "and their pronunciations "
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    CardText(text = "Chart Feature allows you to study " +
-                            "the Hiragana and Katakana scripts " +
-                            "and their pronunciations "
+                    CardText(text = "Game Feature allows you to guess randomly " +
+                            "generated Hiragana and Katakana characters"
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
