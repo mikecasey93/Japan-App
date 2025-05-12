@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.Speaker
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -46,20 +44,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coreui.ui.theme.background
-import com.example.japanviewmodel.viewmodel.JPViewModel
+import com.example.japanviewmodel.viewmodel.JPSharedViewModel
+import com.example.japanviewmodel.viewmodel.JPTranslateViewModel
 import com.example.utils.LanguageUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JPTranslateScreen(viewModel: JPViewModel) {
+fun JPTranslateScreen(
+    sharedViewModel: JPSharedViewModel,
+    translateViewModel: JPTranslateViewModel
+) {
     var userInput by remember { mutableStateOf("") }
-    var outputText by remember { mutableStateOf("") }
+    var emptyText by remember { mutableStateOf("") }
     var romajiText by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
+
+    val translationResult by translateViewModel.translationResult.collectAsState()
+    val isLoading = translationResult == "Translating..."
+
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.initTextToSpeech(context)
+        sharedViewModel.initTextToSpeech(context)
+    }
+
+    LaunchedEffect(translationResult) {
+        if (!translationResult.isNullOrBlank() && translationResult != "Translating...") {
+            romajiText = LanguageUtils.convertToRomaji(translationResult)
+        }
     }
 
     Scaffold(
@@ -134,16 +145,12 @@ fun JPTranslateScreen(viewModel: JPViewModel) {
                     Button(
                         onClick = {
                             if (userInput.isBlank()) {
-                                outputText = "Please enter text to translate"
+                                emptyText = "Please enter text to translate"
                                 return@Button
+                            } else {
+                                emptyText = ""
                             }
-
-                            isLoading = true
-                            LanguageUtils.translationInit(userInput) { translatedText ->
-                                isLoading = false
-                                outputText = translatedText
-                                romajiText = LanguageUtils.convertToRomaji(translatedText)
-                            }
+                            translateViewModel.translateText(userInput)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                         shape = RoundedCornerShape(8.dp),
@@ -159,18 +166,16 @@ fun JPTranslateScreen(viewModel: JPViewModel) {
 
                     Spacer(modifier = Modifier.size(10.dp))
 
-                    AnimatedVisibility(
-                        visible = isLoading
-                    ) {
+                    AnimatedVisibility(visible = isLoading) {
                         CircularProgressIndicator(color = Color.White)
                     }
 
                     AnimatedVisibility(
-                        visible = outputText.isNotEmpty()
+                        visible = translationResult.isNotEmpty()
                     ) {
                         Column {
                             Text(
-                                text = outputText,
+                                text = translationResult,
                                 fontSize = 28.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
@@ -199,10 +204,19 @@ fun JPTranslateScreen(viewModel: JPViewModel) {
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable {
-                                    viewModel.speakText(outputText)
+                                    sharedViewModel.speakText(translationResult)
                                 }
                         )
                     }
+
+                    Spacer(modifier = Modifier.size(10.dp))
+
+                    Text(
+                        text = emptyText,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
                 }
             }
         },

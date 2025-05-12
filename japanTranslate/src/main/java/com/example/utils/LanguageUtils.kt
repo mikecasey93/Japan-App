@@ -1,12 +1,5 @@
 package com.example.utils
 
-import android.util.Log
-import com.google.mlkit.common.model.DownloadConditions
-import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.Translation
-import com.google.mlkit.nl.translate.Translator
-import com.google.mlkit.nl.translate.TranslatorOptions
-
 object LanguageUtils {
 
     private val kanaToRomaji = mapOf(
@@ -44,42 +37,6 @@ object LanguageUtils {
         "バ" to "ba", "ビ" to "bi", "ブ" to "bu", "ベ" to "be", "ボ" to "bo",
         "パ" to "pa", "ピ" to "pi", "プ" to "pu", "ペ" to "pe", "ポ" to "po"
     )
-
-    fun translationInit(
-        text: String,
-        onSuccess: (String) -> Unit
-    ) {
-        val option = TranslatorOptions.Builder()
-            .setSourceLanguage(TranslateLanguage.ENGLISH)
-            .setTargetLanguage(TranslateLanguage.JAPANESE)
-            .build()
-
-        val client = Translation.getClient(option)
-
-        val conditions = DownloadConditions.Builder()
-            .requireWifi()
-            .build()
-
-        Log.d("Translate", "Downloading model...")
-
-        client.downloadModelIfNeeded(conditions)
-            .addOnSuccessListener {
-                Log.d("Translate", "Model download successful")
-            client.translate(text)
-                .addOnSuccessListener { translateText ->
-                    Log.d("Translate", "Translation successful: $translateText")
-                    onSuccess(translateText)
-                }
-                .addOnFailureListener {
-                    Log.e("Translate", "Translation failed: ${it.localizedMessage}")
-                    onSuccess("Translation failed")
-                }
-        }.addOnFailureListener {
-            Log.e("Translate Init", "Failure ==> ${it.localizedMessage.orEmpty()}")
-            onSuccess("Translation model download failed")
-        }
-        Log.d("Success", "Data obtained")
-    }
 
     fun convertToRomaji(text: String): String {
         val romajiBuiler = StringBuilder()

@@ -2,7 +2,6 @@ package com.example.japaneseapp.bottombar
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.VideogameAsset
@@ -20,14 +19,14 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun BottomBar(
     navigateToHome: () -> Unit,
-    navigateToGame: () -> Unit,
     navigateToChart: () -> Unit,
+    navigateToGame: () -> Unit,
     navigateToTranslate: () -> Unit
 ) {
     val destinations = mapOf(
         "Home" to Pair(Icons.Default.Home, navigateToHome),
-        "Game" to Pair(Icons.Default.VideogameAsset, navigateToGame),
         "Chart" to Pair(Icons.Default.Book, navigateToChart),
+        "Game" to Pair(Icons.Default.VideogameAsset, navigateToGame),
         "Translate" to Pair(Icons.Default.Translate, navigateToTranslate)
     )
 
