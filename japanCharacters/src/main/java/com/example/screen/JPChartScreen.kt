@@ -21,6 +21,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonColors
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -94,36 +95,11 @@ fun JPChartScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Row {
-                        RadioButton(
-                            selected = charList == "hiragana",
-                            onClick = { charList = "hiragana" },
-                            colors = RadioButtonColors(
-                                selectedColor = Color.Red,
-                                unselectedColor = Color.Black,
-                                disabledSelectedColor = Color.Black,
-                                disabledUnselectedColor = Color.Black
-                            )
-                        )
-                        Text(
-                            text = "HIRAGANA",
-                            fontWeight = FontWeight.Bold
-                        )
-                        RadioButton(
-                            selected = charList == "katakana",
-                            onClick = { charList = "katakana" },
-                            colors = RadioButtonColors(
-                                selectedColor = Color.Red,
-                                unselectedColor = Color.Black,
-                                disabledSelectedColor = Color.Black,
-                                disabledUnselectedColor = Color.Black
-                            )
-                        )
-                        Text(
-                            text = "KATAKANA",
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    ScriptSelector(
+                        selected = charList,
+                        onSelectedChange = { charList = it}
+                    )
+
                     Text(
                         text = "(CLICK FOR PRONUNCIATION)",
                         fontWeight = FontWeight.Bold
@@ -134,35 +110,67 @@ fun JPChartScreen(
                             .padding(top = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (charList == "hiragana") {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                items(hiragana.orEmpty()) { item ->
-                                    CardItem(item.first, item.second, sharedViewModel)
-                                }
-                            }
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                items(katakana.orEmpty()) { item ->
-                                    CardItem(
-                                        item.first,
-                                        item.second,
-                                        sharedViewModel
-                                    )
-                                }
-                            }
+                        val characters = when (charList) {
+                            "hiragana" -> hiragana.orEmpty()
+                            "katakana" -> katakana.orEmpty()
+                            else -> emptyList()
                         }
+                        CharacterCharList(
+                            characters = characters,
+                            sharedViewModel = sharedViewModel
+                        )
                     }
                 }
             }
         },
         modifier = Modifier.fillMaxSize()
     )
+}
+
+@Composable
+fun ScriptSelector(
+    selected: String,
+    onSelectedChange: (String) -> Unit
+) {
+    val options = listOf("hiragana", "katakana")
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        options.forEach { option ->
+            RadioButton(
+                selected = selected == option,
+                onClick = { onSelectedChange(option) },
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = Color.Red,
+                    unselectedColor = Color.Black,
+                    disabledSelectedColor = Color.Black,
+                    disabledUnselectedColor = Color.Black
+                )
+            )
+            Text(
+                text = option.uppercase(),
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+fun CharacterCharList(
+    characters: List<Pair<String, String>>,
+    sharedViewModel: JPSharedViewModel
+) {
+    LazyColumn(
+       modifier = Modifier.fillMaxWidth() ,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        items(characters) { item ->
+            CardItem(
+                item.first,
+                item.second,
+                sharedViewModel
+            )
+        }
+    }
 }
 
 @Composable
